@@ -21,7 +21,6 @@ var Twig = (function (Twig) {
      * @return {Twig.Template} A Twig template ready for rendering.
      */
     Twig.exports.twig = function twig(params) {
-        'use strict';
         var id = params.id,
             options = {
                 strict_variables: params.strict_variables || false
@@ -148,7 +147,7 @@ var Twig = (function (Twig) {
 
         var params = {
                 path: path,
-                base: options.settings['views'],
+                base: options.settings.views,
                 load: function(template) {
                     // render and return template
                     fn(null, template.render(options));
@@ -159,8 +158,10 @@ var Twig = (function (Twig) {
         var view_options = options.settings['twig options'];
 
         if (view_options) {
-            for (var option in view_options) if (view_options.hasOwnProperty(option)) {
-                params[option] = view_options[option];
+            for (var option in view_options) {
+                if (view_options.hasOwnProperty(option)) {
+                    params[option] = view_options[option];
+                }
             }
         }
 
@@ -179,7 +180,7 @@ var Twig = (function (Twig) {
      */
     Twig.exports.cache = function(cache) {
         Twig.cache = cache;
-    }
+    };
 
     return Twig;
 }) (Twig || { });

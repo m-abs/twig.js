@@ -10,14 +10,25 @@ var Twig = (function (Twig) {
     "use strict";
     Twig.tests = {
         empty: function(value) {
-            if (value === null || value === undefined) return true;
+            if (value === null || value === undefined) {
+                return true;
+            }
+
             // Handler numbers
-            if (typeof value === "number") return false; // numbers are never "empty"
+            if (typeof value === "number") {
+                return false; // numbers are never "empty"
+            }
+
             // Handle strings and arrays
-            if (value.length && value.length > 0) return false;
+            if (value.length && value.length > 0) {
+                return false;
+            }
+
             // Handle objects
             for (var key in value) {
-                if (value.hasOwnProperty(key)) return false;
+                if (value.hasOwnProperty(key)) {
+                    return false;
+                }
             }
             return true;
         },

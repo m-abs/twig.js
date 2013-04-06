@@ -7,6 +7,7 @@
 //
 
 var Twig = (function(Twig) {
+    'use strict';
 
     // Namespace for libraries
     Twig.lib = { };
@@ -167,10 +168,13 @@ var Twig = (function(Twig) {
         }
         function getISO8601Year(aDate) {
                 var d = new Date(aDate.getFullYear() + 1, 0, 4);
-                if((d - aDate) / 86400000 < 7 && (aDate.getDay() + 6) % 7 < (d.getDay() + 6) % 7)
+                if((d - aDate) / 86400000 < 7 && (aDate.getDay() + 6) % 7 < (d.getDay() + 6) % 7) {
                         return d.getFullYear();
-                if(aDate.getMonth() > 0 || aDate.getDate() >= 4)
+                }
+
+                if(aDate.getMonth() > 0 || aDate.getDate() >= 4) {
                         return aDate.getFullYear();
+                }
                 return aDate.getFullYear() - (((aDate.getDay() + 6) % 7 - aDate.getDate() > 2) ? 1 : 0);
         }
         function getISO8601Week(aDate) {
@@ -229,8 +233,9 @@ var Twig = (function(Twig) {
             ///   format string.
             /// </returns>
             // If the format was not passed, use the default toString method.
-            if(typeof format !== "string" || /^\s*$/.test(format))
+            if(typeof format !== "string" || /^\s*$/.test(format)) {
                     return date + "";
+            }
             var jan1st = new Date(date.getFullYear(), 0, 1);
             var me = date;
             return format.replace(/[dDjlNSwzWFmMntLoYyaABgGhHisu]/g, function(option) {
@@ -532,8 +537,9 @@ var Twig = (function(Twig) {
     Twig.lib.copy = function(src) {
         var target = {},
             key;
-        for (key in src)
+        for (key in src) {
             target[key] = src[key];
+        }
             
         return target;
     };

@@ -235,8 +235,8 @@ var Twig = (function (Twig) {
                 // Parse expression
                 var result = Twig.expression.parse.apply(this, [token.expression, context]),
                     output = [],
-					len,
-					index = 0,
+                    len,
+                    index = 0,
                     keyset,
                     that = this,
                     conditional = token.conditional,
@@ -273,7 +273,6 @@ var Twig = (function (Twig) {
                     };
 
                 if (result instanceof Array) {
-                    len = result.length;
                     result.forEach(function (value) {
                         var key = index;
 
@@ -285,10 +284,11 @@ var Twig = (function (Twig) {
                     } else {
                         keyset = Object.keys(result);
                     }
-					len = keyset.length;
                     keyset.forEach(function(key) {
                         // Ignore the _keys property, it's internal to twig.js
-                        if (key === "_keys") return;
+                        if (key === "_keys") {
+                          return;
+                        }
 
                         loop(key,  result[key]);
                     });
@@ -575,8 +575,9 @@ var Twig = (function (Twig) {
 
                 if (!token.only) {
                     for (i in context) {
-                        if (context.hasOwnProperty(i))
+                        if (context.hasOwnProperty(i)) {
                             innerContext[i] = context[i];
+                        }
                     }
                 }
 
@@ -584,8 +585,9 @@ var Twig = (function (Twig) {
                     withContext = Twig.expression.parse.apply(this, [token.withStack, context]);
 
                     for (i in withContext) {
-                        if (withContext.hasOwnProperty(i))
+                        if (withContext.hasOwnProperty(i)) {
                             innerContext[i] = withContext[i];
+                        }
                     }
                 }
 

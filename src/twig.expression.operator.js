@@ -146,7 +146,7 @@ var Twig = (function (Twig) {
             case '//':
                 b = parseFloat(stack.pop());
                 a = parseFloat(stack.pop());
-                stack.push(parseInt(a / b));
+                stack.push(parseInt(a / b, 10));
                 break;
 
             case '%':
@@ -258,7 +258,7 @@ var Twig = (function (Twig) {
     };
 
     var containment = function(a, b) {
-        if (b.indexOf != undefined) {
+        if (b.indexOf !== undefined) {
             return b.indexOf(a) > -1;
 
         } else {
@@ -270,7 +270,7 @@ var Twig = (function (Twig) {
             }
             return false;
         }
-    }
+    };
 
     return Twig;
 

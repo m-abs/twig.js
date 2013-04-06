@@ -8,12 +8,7 @@
 //
 // This file handles parsing filters.
 var Twig = (function (Twig) {
-
-    // Determine object type
-    function is(type, obj) {
-        var clas = Object.prototype.toString.call(obj).slice(8, -1);
-        return obj !== undefined && obj !== null && clas === type;
-    }
+    'use strict';
 
     Twig.functions = {
         //  attribute, block, constant, date, dump, parent, random,.
@@ -125,7 +120,9 @@ var Twig = (function (Twig) {
 	            };
 
 			// handle no argument case by dumping the entire render context
-			if (args.length == 0) args.push(this.context);
+			if (args.length === 0) {
+				args.push(this.context);
+			}
 
 			args.forEach(function(variable) {
 				dumpVar(variable);
@@ -133,7 +130,7 @@ var Twig = (function (Twig) {
 
             return out;
         },
-        date: function(date, time) {
+        date: function(date/*, time*/) {
             var dateObj;
             if (date === undefined) {
                 dateObj = new Date();

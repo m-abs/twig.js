@@ -66,7 +66,7 @@ var Twig = (function (Twig) {
         {
             type: Twig.token.type.raw,
             open: '{% raw %}',
-            close: '{% endraw %}',
+            close: '{% endraw %}'
         },
         // *Output type tokens*
         //
@@ -477,7 +477,7 @@ var Twig = (function (Twig) {
             throw new Twig.Error("There is already a template with the ID " + id);
         }
         return true;
-    }
+    };
 
     /**
      * Save a template object to the store.
@@ -531,7 +531,9 @@ var Twig = (function (Twig) {
             template    = null;
 
         // Default to async
-        if (async === undefined) async = true;
+        if (async === undefined) {
+            async = true;
+        }
 
         // Default to the URL so the template is cached.
         if (id === undefined) {
@@ -584,7 +586,6 @@ var Twig = (function (Twig) {
             // Create local scope
             (function() {
                 var fs = require('fs'),
-                    path = require('path'),
                     data = null,
                     loadTemplateFn = function(err, data) {
                         if (err) {
@@ -611,14 +612,16 @@ var Twig = (function (Twig) {
 
                 if (async === true) {
                     fs.stat(location, function (err, stats) {
-                        if (err || !stats.isFile())
+                        if (err || !stats.isFile()) {
                             throw new Twig.Error("Unable to find template file " + location);
+                        }
 
                         fs.readFile(location, 'utf8', loadTemplateFn);
                     });
                 } else {
-                    if (!fs.statSync(location).isFile())
+                    if (!fs.statSync(location).isFile()) {
                         throw new Twig.Error("Unable to find template file " + location);
+                    }
 
                     data = fs.readFileSync(location, 'utf8');
                     loadTemplateFn(undefined, data);
@@ -763,8 +766,7 @@ var Twig = (function (Twig) {
     Twig.Template.prototype.importBlocks = function(file, override) {
         var sub_template = this.importFile(file),
             context = this.context,
-            that = this,
-            key;
+            that = this;
 
         override = override || false;
 
@@ -806,7 +808,7 @@ var Twig = (function (Twig) {
                 sep = path.sep || sep_chr,
                 relative = new RegExp("^\\.{1,2}" + sep.replace("\\", "\\\\"));
 
-            if (template.base !== undefined && file.match(relative) == null) {
+            if (template.base !== undefined && file.match(relative) === null) {
                 file = file.replace(template.base, '');
                 base = template.base + sep;
             } else {

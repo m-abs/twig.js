@@ -8,9 +8,11 @@
 
 if (typeof module !== 'undefined' && module.declare) {
     // Provide a CommonJS Modules/2.0 draft 8 module
-    module.declare([], function(require, exports, module) {
+    module.declare([], function(require, exports/*, module*/) {
+        'use strict';
+
         // Add exports from the Twig exports
-        for (key in Twig.exports) {
+        for (var key in Twig.exports) {
             if (Twig.exports.hasOwnProperty(key)) {
                 exports[key] = Twig.exports[key];
             }
@@ -18,6 +20,8 @@ if (typeof module !== 'undefined' && module.declare) {
     });
 } else if (typeof define == 'function' && define.amd) {
     define(function() {
+        'use strict';
+
         return Twig.exports;
     });
 } else if (typeof module !== 'undefined' && module.exports) {

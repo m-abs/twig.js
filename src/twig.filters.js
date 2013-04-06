@@ -7,6 +7,7 @@
 //
 // This file handles parsing filters.
 var Twig = (function (Twig) {
+    'use strict';
 
     // Determine object type
     function is(type, obj) {
@@ -99,7 +100,10 @@ var Twig = (function (Twig) {
                 output = [];
 
             keyset.forEach(function(key) {
-                if (key === "_keys") return; // Ignore the _keys property
+                if (key === "_keys") {
+                  return; // Ignore the _keys property
+                }
+
                 if (value.hasOwnProperty(key)) {
                     output.push(key);
                 }
@@ -130,7 +134,10 @@ var Twig = (function (Twig) {
             } else {
                 keyset = value._keys || Object.keys(value);
                 keyset.forEach(function(key) {
-                    if (key === "_keys") return; // Ignore the _keys property
+                    if (key === "_keys") {
+                      return; // Ignore the _keys property
+                    }
+
                     if (value.hasOwnProperty(key)) {
                         output.push(value[key]);
                     }
@@ -179,7 +186,9 @@ var Twig = (function (Twig) {
 
             if (value instanceof Array) {
                 value.forEach(function(val) {
-                    if (obj._keys) obj._keys.unshift(arr_index);
+                    if (obj._keys) {
+                      obj._keys.unshift(arr_index);
+                    }
                     obj[arr_index] = val;
                     arr_index++;
                 });
@@ -207,14 +216,18 @@ var Twig = (function (Twig) {
             params.forEach(function(param) {
                 if (param instanceof Array) {
                     param.forEach(function(val) {
-                        if (obj._keys) obj._keys.push(arr_index);
+                        if (obj._keys) {
+                            obj._keys.push(arr_index);
+                        }
                         obj[arr_index] = val;
                         arr_index++;
                     });
                 } else {
                     keyset = param._keys || Object.keys(param);
                     keyset.forEach(function(key) {
-                        if (!obj[key]) obj._keys.unshift(key);
+                        if (!obj[key]) {
+                            obj._keys.unshift(key);
+                        }
                         obj[key] = param[key];
 
                         var int_key = parseInt(key, 10);
@@ -326,7 +339,7 @@ var Twig = (function (Twig) {
             return s.join(dec);
         },
 
-		trim: function(value, params) {
+		trim: function(value/*, params*/) {
 			if (value === undefined){
 				return;
 			}
@@ -354,7 +367,7 @@ var Twig = (function (Twig) {
             throw "Unable to find filter " + filter;
         }
         return Twig.filters[filter].apply(this, [value, params]);
-    }
+    };
 
     Twig.filter.extend = function(filter, definition) {
         Twig.filters[filter] = definition;

@@ -4,6 +4,7 @@
 //     https://github.com/justjohn/twig.js
 
 var Twig = (function (Twig) {
+    'use strict';
 
     Twig.VERSION = "0.5.6";
 

@@ -98,10 +98,10 @@ var Twig = (function (Twig) {
             }
         },
         parse: {
-            push: function(token, stack, context) {
+            push: function(token, stack/*, context*/) {
                 stack.push(token);
             },
-            push_value: function(token, stack, context) {
+            push_value: function(token, stack/*, context*/) {
                 stack.push(token.value);
             }
         }
@@ -226,7 +226,7 @@ var Twig = (function (Twig) {
                     stack.push(operator);
                 }
             },
-            parse: function(token, stack, context) {
+            parse: function(token, stack/*, context*/) {
                 if (token.key) {
                     // handle ternary ':' operator
                     stack.push(token);
@@ -265,7 +265,7 @@ var Twig = (function (Twig) {
 
                 stack.push(operator);
             },
-            parse: function(token, stack, context) {
+            parse: function(token, stack/*, context*/) {
                 Twig.expression.operator.parse(token.value, stack);
             }
         },
@@ -279,7 +279,7 @@ var Twig = (function (Twig) {
             next: Twig.expression.set.operations,
             compile: function(token, stack, output) {
                 var value = token.value;
-                delete token.match
+                delete token.match;
 
                 // Remove the quotes from the string
                 if (value.substring(0, 1) === '"') {
@@ -329,8 +329,6 @@ var Twig = (function (Twig) {
                 }
                 param_stack.unshift(token);
 
-                var is_expression = false;
-
                 // Get the token preceding the parameters
                 token = output[output.length-1];
 
@@ -362,7 +360,7 @@ var Twig = (function (Twig) {
                     value = null;
 
                 if (token.expression) {
-                    value = Twig.expression.parse.apply(this, [token.params, context])
+                    value = Twig.expression.parse.apply(this, [token.params, context]);
                     stack.push(value);
 
                 } else {
@@ -415,7 +413,7 @@ var Twig = (function (Twig) {
                 }
                 output.push(token);
             },
-            parse: function(token, stack, context) {
+            parse: function(token, stack/*, context*/) {
                 var new_array = [],
                     array_ended = false,
                     value = null;
@@ -472,11 +470,10 @@ var Twig = (function (Twig) {
                 }
                 output.push(token);
             },
-            parse: function(end_token, stack, context) {
+            parse: function(end_token, stack/*, context*/) {
                 var new_object = {},
                     object_ended = false,
                     token = null,
-                    token_key = null,
                     has_value = false,
                     value = null;
 
@@ -496,7 +493,9 @@ var Twig = (function (Twig) {
                         // Preserve the order that elements are added to the map
                         // This is necessary since JavaScript objects don't
                         // guarantee the order of keys
-                        if (new_object._keys === undefined) new_object._keys = [];
+                        if (new_object._keys === undefined) {
+                            new_object._keys = [];
+                        }
                         new_object._keys.unshift(token.key);
 
                         // reset value check
@@ -544,7 +543,7 @@ var Twig = (function (Twig) {
             // match any letter or _, then any number of letters, numbers, _ or - followed by (
             regex: /^([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/,
             next: Twig.expression.type.parameter.start,
-            transform: function(match, tokens) {
+            transform: function(/*match, tokens*/) {
                 return '(';
             },
             compile: function(token, stack, output) {
@@ -592,7 +591,7 @@ var Twig = (function (Twig) {
             next: Twig.expression.set.operations_extended.concat([
                     Twig.expression.type.parameter.start]),
             compile: Twig.expression.fn.compile.push,
-            validate: function(match, tokens) {
+            validate: function(match/*, tokens*/) {
                 return Twig.expression.reservedWords.indexOf(match[0]) == -1;
             },
             parse: function(token, stack, context) {
@@ -812,9 +811,9 @@ var Twig = (function (Twig) {
             match_found, invalid_matches = [], match_function;
 
         match_function = function () {
-            var match = Array.prototype.slice.apply(arguments),
-                string = match.pop(),
-                offset = match.pop();
+            var match = Array.prototype.slice.apply(arguments,[2]);
+            //  string = arguments[0];
+            //  offset = arguments[1];
 
             Twig.log.trace("Twig.expression.tokenize",
                            "Matched a ", type, " regular expression of ", match);
@@ -860,11 +859,11 @@ var Twig = (function (Twig) {
 
         while (expression.length > 0) {
             expression = expression.trim();
-            for (type in Twig.expression.handler) {
-                if (Twig.expression.handler.hasOwnProperty(type)) {
-                    token_next = Twig.expression.handler[type].next;
-                    regex = Twig.expression.handler[type].regex;
-                    // Twig.log.trace("Checking type ", type, " on ", expression);
+            for (var _type in Twig.expression.handler) {
+                if (Twig.expression.handler.hasOwnProperty(_type)) {
+                    token_next = Twig.expression.handler[_type].next;
+                    regex = Twig.expression.handler[_type].regex;
+                    // Twig.log.trace("Checking type ", _type, " on ", expression);
                     if (regex instanceof Array) {
                         regex_array = regex;
                     } else {
@@ -924,7 +923,9 @@ var Twig = (function (Twig) {
             Twig.log.trace("Twig.expression.compile: ", "Compiling ", token);
 
             // Compile the template
-            token_template.compile && token_template.compile(token, stack, output);
+            if ( token_template.compile ) {
+                token_template.compile(token, stack, output);
+            }
 
             Twig.log.trace("Twig.expression.compile: ", "Stack is", stack);
             Twig.log.trace("Twig.expression.compile: ", "Output is", output);
@@ -968,7 +969,9 @@ var Twig = (function (Twig) {
         tokens.forEach(function (token) {
             token_template = Twig.expression.handler[token.type];
 
-            token_template.parse && token_template.parse.apply(that, [token, stack, context]);
+            if ( token_template.parse ) {
+                token_template.parse.apply(that, [token, stack, context]);
+            }
         });
 
         // Pop the final value off the stack

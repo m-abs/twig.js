@@ -7,6 +7,8 @@
 //
 // This file handles compiling templates into JS
 var Twig = (function (Twig) {
+    'use strict';
+
     /**
      * Namespace for compilation.
      */
@@ -38,13 +40,13 @@ var Twig = (function (Twig) {
         }
         , node: function(id, tokens) {
             return 'var twig = require("twig").twig;\n'
-                + 'exports.template = ' + Twig.compiler.wrap(id, tokens)
+                + 'exports.template = ' + Twig.compiler.wrap(id, tokens);
         }
         , cjs2: function(id, tokens, pathToTwig) {
             return 'module.declare([{ twig: "' + pathToTwig + '" }], function (require, exports, module) {\n'
                         + '\tvar twig = require("twig").twig;\n'
                         + '\texports.template = ' + Twig.compiler.wrap(id, tokens)
-                    + '\n});'
+                    + '\n});';
         }
     };
 
