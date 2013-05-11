@@ -136,7 +136,7 @@ var Twig = (function(Twig) {
     })();
 
     var vsprintf = function(fmt, argv) {
-     	argv.unshift(fmt);
+        argv.unshift(fmt);
         return sprintf.apply(null, argv);
     };
 
@@ -182,7 +182,7 @@ var Twig = (function(Twig) {
                 var d = new Date(getISO8601Year(aDate), 0, 4);
                 // Get the first monday of the year.
                 d.setDate(d.getDate() - (d.getDay() + 6) % 7);
-                return parseInt((aDate - d) / 604800000) + 1;
+                return parseInt((aDate - d) / 604800000, 10) + 1;
         }
         Twig.lib.formatDate = function(date, format) {
             /// <summary>
@@ -345,8 +345,8 @@ var Twig = (function(Twig) {
         return input.replace(commentsAndPhpTags, '').replace(tags, function ($0, $1) {
             return allowed.indexOf('<' + $1.toLowerCase() + '>') > -1 ? $0 : '';
         });
-    }
-    
+    };
+
     Twig.lib.strtotime = function (str, now) {
         // http://kevin.vanzonneveld.net
         // +   original by: Caio Ariede (http://caioariede.com)
@@ -410,7 +410,7 @@ var Twig = (function(Twig) {
         var process = function (m) {
             var ago = (m[2] && m[2] === 'ago');
             var num = (num = m[0] === 'last' ? -1 : 1) * (ago ? -1 : 1);
-        
+
             switch (m[0]) {
             case 'last':
             case 'next':
@@ -532,7 +532,7 @@ var Twig = (function(Twig) {
         var clas = Object.prototype.toString.call(obj).slice(8, -1);
         return obj !== undefined && obj !== null && clas === type;
     };
-    
+
     // shallow-copy an object
     Twig.lib.copy = function(src) {
         var target = {},
@@ -540,8 +540,12 @@ var Twig = (function(Twig) {
         for (key in src) {
             target[key] = src[key];
         }
-            
+
         return target;
+    };
+
+    Twig.lib.replaceAll = function(string, search, replace) {
+        return string.split(search).join(replace);
     };
 
     return Twig;

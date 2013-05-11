@@ -42,6 +42,7 @@
        - [cycle ->](#twigjs-functions---built-in-functions---cycle--)
        - [date ->](#twigjs-functions---built-in-functions---date--)
        - [dump ->](#twigjs-functions---built-in-functions---dump--)
+   - [Twig.js Optional Functionality ->](#twigjs-optional-functionality--)
    - [Twig.js Regression Tests ->](#twigjs-regression-tests--)
    - [Twig.js Tags ->](#twigjs-tags--)
    - [Twig.js Tests ->](#twigjs-tests--)
@@ -321,6 +322,16 @@ should recognize null in an object.
 
 ```js
 twig({data: '{% set at = {"foo": null} %}{{ at.foo == val }}'}).render({val: null}).should.equal( "true" );
+```
+
+should support raw data.
+
+```js
+twig({
+	data: "before {% raw %}{{ test }} {% test2 %} {{{% endraw %} after"
+}).render().should.equal(
+	"before {{ test }} {% test2 %} {{ after"
+);
 ```
 
 <a name="twigjs-core---key-notation--"></a>
@@ -1049,7 +1060,7 @@ should sort an array.
 ```js
 var test_template = twig({data: '{{ [1,5,2,7]|sort }}' });
 test_template.render().should.equal("1,2,5,7" );
-        
+
 test_template = twig({data: '{{ ["test","abc",2,7]|sort }}' });
 test_template.render().should.equal("2,7,abc,test" );
 ```
@@ -1059,7 +1070,7 @@ should sort an object.
 ```js
 var test_template = twig({data: "{% set obj =  {'c': 1,'d': 5,'t': 2,'e':7}|sort %}{% for key,value in obj|sort %}{{key}}:{{value}} {%endfor %}" });
 test_template.render().should.equal("c:1 t:2 d:5 e:7 " );
-        
+
 test_template = twig({data: "{% set obj = {'m':'test','z':'abc','a':2,'y':7} %}{% for key,value in obj|sort %}{{key}}:{{value}} {%endfor %}" });
 test_template.render().should.equal("a:2 y:7 z:abc m:test " );
 ```
@@ -1143,7 +1154,7 @@ should merge an object and an array into an object.
 // Mixed merging
 var test_template = twig({data: '{% set obj= ["a", "b"]|merge({"a": "c", "3":4}, ["c", "d"]) %}{% for key in obj|keys|sort %}{{key}}:{{obj[key]}} {%endfor %}' });
 test_template.render().should.equal('0:a 1:b 3:4 4:c 5:d a:c ' );
-        
+
 // Mixed merging(2)
 test_template = twig({data: '{% set obj= {"1":"a", "a":"b"}|merge(["c", "d"]) %}{% for key in obj|keys %}{{key}}:{{obj[key]}} {%endfor %}' });
 test_template.render().should.equal('1:a a:b 2:c 3:d ' );
@@ -1195,7 +1206,7 @@ should provide a default value if a value is empty.
 ```js
 var test_template = twig({data: '{{ ""|default("Empty String") }}' });
 test_template.render().should.equal("Empty String" );
-        
+
 test_template = twig({data: '{{ var.key|default("Empty Key") }}' });
 test_template.render({'var':{}}).should.equal("Empty Key" );
 ```
@@ -1206,18 +1217,18 @@ should recognize timestamps.
 
 ```js
 var template = twig({data: '{{ 27571323556|date("d/m/Y @ H:i:s") }}'})
-               , date = new Date(27571323556000); // 13/09/2843 @ 08:59:16 EST
-           
-           template.render().should.equal( stringDate(date) );
+    , date = new Date(27571323556000); // 13/09/2843 @ 08:59:16 EST
+
+template.render().should.equal( stringDate(date) );
 ```
 
 should recognize string date formats.
 
 ```js
 var template = twig({data: '{{ "Tue Aug 14 08:52:15 +0000 2007"|date("d/m/Y @ H:i:s") }}'})
-               , date = new Date(1187081535000); // 14/08/2007 @ 04:52:15 EST
+    , date = new Date(1187081535000); // 14/08/2007 @ 04:52:15 EST
 
-           template.render().should.equal( stringDate(date) );
+template.render().should.equal( stringDate(date) );
 ```
 
 should handle undefined.
@@ -1232,8 +1243,8 @@ test_template.render().should.equal( "" );
 should replace strings provided in a map.
 
 ```js
-var template = twig({data: '{{ "I like %this% and %that%."|replace({"%this%": foo, "%that%": "bar"}) }}'});
-template.render({foo: "foo"}).should.equal("I like foo and bar." );
+var template = twig({data: '{{ "I like %this% and %that%. Seriously, I like %this% and %that%."|replace({"%this%": foo, "%that%": "bar"}) }}'});
+template.render({foo: "foo"}).should.equal("I like foo and bar. Seriously, I like foo and bar." );
 ```
 
 should handle undefined.
@@ -1313,7 +1324,8 @@ should convert newlines into html breaks.
 
 ```js
 var template = twig({data: '{{ test|nl2br }}'});
-template.render({ test: 'Line 1\r\nLine 2\nLine 3\rLine 4\n\n' }).should.equal("Line 1<br />Line 2<br />Line 3<br />Line 4<br /><br />");
+template.render({ test: 'Line 1\r\nLine 2\nLine 3\rLine 4\n\n' })
+    .should.equal("Line 1<br />\nLine 2<br />\nLine 3<br />\nLine 4<br />\n<br />\n");
 ```
 
 should handle undefined.
@@ -1526,6 +1538,21 @@ twig({
         done();
     }
 })
+```
+
+should be able to extend to a absolute tempalte path.
+
+```js
+// Test loading a template from a remote endpoint
+twig({
+    base: 'test/templates',
+    path: 'test/templates/a/child.twig',
+
+    load: function(template) {
+        template.render({ base: "b/template.twig" }).should.equal( "Other Title - child" );
+        done();
+    }
+});
 ```
 
 <a name="twigjs-include--"></a>
@@ -1822,6 +1849,25 @@ should output formatted undefined.
 
 ```js
 twig({data: '{{ dump(test) }}' }).render({ test: undefined }).should.equal('undefined' + EOL);
+```
+
+<a name="twigjs-optional-functionality--"></a>
+# Twig.js Optional Functionality ->
+should support inline includes by ID.
+
+```js
+twig({
+    id:   'other',
+    data: 'another template'
+});
+
+var template = twig({
+        allowInlineIncludes: true,
+        data: 'template with {% include "other" %}'
+    }),
+    output = template.render()
+
+output.should.equal("template with another template");
 ```
 
 <a name="twigjs-regression-tests--"></a>

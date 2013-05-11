@@ -187,7 +187,7 @@ var Twig = (function (Twig) {
             if (value instanceof Array) {
                 value.forEach(function(val) {
                     if (obj._keys) {
-                      obj._keys.unshift(arr_index);
+                      obj._keys.push(arr_index);
                     }
                     obj[arr_index] = val;
                     arr_index++;
@@ -226,7 +226,7 @@ var Twig = (function (Twig) {
                     keyset = param._keys || Object.keys(param);
                     keyset.forEach(function(key) {
                         if (!obj[key]) {
-                            obj._keys.unshift(key);
+                            obj._keys.push(key);
                         }
                         obj[key] = param[key];
 
@@ -261,7 +261,7 @@ var Twig = (function (Twig) {
                 tag;
             for (tag in pairs) {
                 if (pairs.hasOwnProperty(tag) && tag !== "_keys") {
-                    value = value.replace(tag, pairs[tag]);
+                    value = Twig.lib.replaceAll(value, tag, pairs[tag]);
                 }
             }
             return value;
@@ -287,7 +287,7 @@ var Twig = (function (Twig) {
             if (value === undefined){
                 return;
             }
-            return value.replace(/&/g, "&amp;")
+            return value.toString().replace(/&/g, "&amp;")
                         .replace(/</g, "&lt;")
                         .replace(/>/g, "&gt;")
                         .replace(/"/g, "&quot;")
@@ -303,11 +303,15 @@ var Twig = (function (Twig) {
             if (value === undefined){
                 return;
             }
-            var br = '<br />';
-            return Twig.filters.escape(value)
+            var linebreak_tag = "BACKSLASH_n_replace",
+                br = "<br />" + linebreak_tag;
+
+            value = Twig.filters.escape(value)
                         .replace(/\r\n/g, br)
                         .replace(/\r/g, br)
                         .replace(/\n/g, br);
+
+            return Twig.lib.replaceAll(value, linebreak_tag, "\n");
         },
 
         /**
@@ -344,8 +348,13 @@ var Twig = (function (Twig) {
 				return;
 			}
 
-			var str = '' + value;
-			var whitespace = ' \n\r\t\f\x0b\xa0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000';
+			var str = Twig.filters.escape( '' + value ),
+				whitespace;
+			if ( params && params[0] ) {
+				whitespace = '' + params[0];
+			} else {
+				whitespace = ' \n\r\t\f\x0b\xa0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000';
+			}
 			for (var i = 0; i < str.length; i++) {
 				if (whitespace.indexOf(str.charAt(i)) === -1) {
 					str = str.substring(i);

@@ -3,7 +3,7 @@
 //     Available under the BSD 2-Clause License
 //     https://github.com/justjohn/twig.js
 
-// ## twig.function.js
+// ## twig.exports.js
 //
 // This file provides extension points and other hooks into the twig functionality.
 
@@ -23,7 +23,8 @@ var Twig = (function (Twig) {
     Twig.exports.twig = function twig(params) {
         var id = params.id,
             options = {
-                strict_variables: params.strict_variables || false
+                strict_variables: params.strict_variables || false,
+                allowInlineIncludes: params.allowInlineIncludes || false
             };
         if (id) {
             Twig.validateId(id);
@@ -54,6 +55,7 @@ var Twig = (function (Twig) {
             return Twig.Templates.loadRemote(params.href, {
                 id: id,
                 method: 'ajax',
+                base: params.base,
                 module: params.module,
                 precompiled: params.precompiled,
                 async: params.async,

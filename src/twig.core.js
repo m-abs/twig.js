@@ -231,6 +231,11 @@ var Twig = (function (Twig) {
                     value: template.substring(0, end).trim()
                 });
 
+                if ( found_token.def.type === "logic" && template.substr( end + found_token.def.close.length, 1 ) === "\n" ) {
+                    // Newlines directly after logic tokens are ignored
+                    end += 1;
+                }
+
                 template = template.substr(end + found_token.def.close.length);
 
                 // Increment the position in the template
@@ -751,14 +756,27 @@ var Twig = (function (Twig) {
     };
 
     Twig.Template.prototype.importFile = function(file) {
-        var url = relativePath(this, file),
-            // Load blocks from an external file
-            sub_template = Twig.Templates.loadRemote(url, {
-                method: this.url?'ajax':'fs',
-                async: false,
-                options: this.options,
-                id: url
-            });
+        var url, sub_template;
+        if ( !this.url && !this.path && this.options.allowInlineIncludes ) {
+            sub_template = Twig.Templates.load(file);
+            sub_template.options = this.options;
+            if ( sub_template ) {
+                return sub_template;
+            }
+
+            throw new Twig.Error("Didn't find the inline template by id");
+        }
+
+        url = relativePath(this, file);
+
+        // Load blocks from an external file
+        sub_template = Twig.Templates.loadRemote(url, {
+            method: this.url?'ajax':'fs',
+            base: this.base,
+            async: false,
+            options: this.options,
+            id: url
+        });
 
         return sub_template;
     };
@@ -801,7 +819,11 @@ var Twig = (function (Twig) {
             val;
 
         if (template.url) {
-            base = template.url;
+            if (typeof template.base !== 'undefined') {
+                base = template.base + ((template.base.charAt(template.base.length-1) === '/') ? '' : '/');
+            } else {
+                base = template.url;
+            }
         } else if (template.path) {
             // Get the system-specific path separator
             var path = require("path"),
