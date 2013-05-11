@@ -769,6 +769,7 @@ var Twig = (function (Twig) {
         // Load blocks from an external file
         sub_template = Twig.Templates.loadRemote(url, {
             method: this.url?'ajax':'fs',
+            base: this.base,
             async: false,
             options: this.options,
             id: url
@@ -816,7 +817,11 @@ var Twig = (function (Twig) {
             val;
 
         if (template.url) {
-            base = template.url;
+            if (typeof template.base !== 'undefined') {
+                base = template.base + ((template.base.charAt(template.base.length-1) === '/') ? '' : '/');
+            } else {
+                base = template.url;
+            }
         } else if (template.path) {
             // Get the system-specific path separator
             var path = require("path"),

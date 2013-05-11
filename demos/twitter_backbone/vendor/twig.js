@@ -1,11 +1,11 @@
-//     Twig.js 0.5.7
+//     Twig.js 0.5.8
 //     Copyright (c) 2011-2013 John Roepke
 //     Available under the BSD 2-Clause License
 //     https://github.com/justjohn/twig.js
 
 var Twig = (function (Twig) {
 
-    Twig.VERSION = "0.5.7";
+    Twig.VERSION = "0.5.8";
 
     return Twig;
 })(Twig || {});
@@ -241,6 +241,11 @@ var Twig = (function (Twig) {
                     type:  found_token.def.type,
                     value: template.substring(0, end).trim()
                 });
+
+                if ( found_token.def.type === "logic" && template.substr( end + found_token.def.close.length, 1 ) === "\n" ) {
+                    // Newlines directly after logic tokens are ignored
+                    end += 1;
+                }
 
                 template = template.substr(end + found_token.def.close.length);
 
@@ -775,6 +780,7 @@ var Twig = (function (Twig) {
         // Load blocks from an external file
         sub_template = Twig.Templates.loadRemote(url, {
             method: this.url?'ajax':'fs',
+            base: this.base,
             async: false,
             options: this.options,
             id: url
@@ -822,7 +828,11 @@ var Twig = (function (Twig) {
             val;
 
         if (template.url) {
-            base = template.url;
+            if (typeof template.base !== 'undefined') {
+                base = template.base + ((template.base.charAt(template.base.length-1) === '/') ? '' : '/');
+            } else {
+                base = template.url;
+            }
         } else if (template.path) {
             // Get the system-specific path separator
             var path = require("path"),
@@ -2083,7 +2093,7 @@ var Twig = (function (Twig) {
                     includeMissing = match[1] !== undefined,
                     expression = match[2].trim(),
                     withContext = match[3],
-                    only = match[4] !== undefined;
+                    only = ((match[4] !== undefined) && match[4].length);
 
                 delete token.match;
 
@@ -3334,13 +3344,29 @@ var Twig = (function (Twig) {
         rightToLeft: 'rightToLeft'
     };
 
+    var containment = function(a, b) {
+        if (b.indexOf !== undefined) {
+            // String
+            return a === b || a !== '' && b.indexOf(a) > -1;
+
+        } else {
+            var el;
+            for (el in b) {
+                if (b.hasOwnProperty(el) && b[el] === a) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    };
+
     /**
      * Get the precidence and associativity of an operator. These follow the order that C/C++ use.
      * See http://en.wikipedia.org/wiki/Operators_in_C_and_C++ for the table of values.
      */
     Twig.expression.operator.lookup = function (operator, token) {
         switch (operator) {
-			case "..":
+            case "..":
             case 'not in':
             case 'in':
                 token.precidence = 20;
@@ -3574,21 +3600,6 @@ var Twig = (function (Twig) {
         }
     };
 
-    var containment = function(a, b) {
-        if (b.indexOf != undefined) {
-            return b.indexOf(a) > -1;
-
-        } else {
-            var el;
-            for (el in b) {
-                if (b.hasOwnProperty(el) && b[el] === a) {
-                    return true;
-                }
-            }
-            return false;
-        }
-    }
-
     return Twig;
 
 })( Twig || { } );
@@ -3773,7 +3784,7 @@ var Twig = (function (Twig) {
 
             if (value instanceof Array) {
                 value.forEach(function(val) {
-                    if (obj._keys) obj._keys.unshift(arr_index);
+                    if (obj._keys) obj._keys.push(arr_index);
                     obj[arr_index] = val;
                     arr_index++;
                 });
@@ -3808,7 +3819,7 @@ var Twig = (function (Twig) {
                 } else {
                     keyset = param._keys || Object.keys(param);
                     keyset.forEach(function(key) {
-                        if (!obj[key]) obj._keys.unshift(key);
+                        if (!obj[key]) obj._keys.push(key);
                         obj[key] = param[key];
 
                         var int_key = parseInt(key, 10);
@@ -4204,7 +4215,7 @@ var Twig = (function (Twig) {
 //     Available under the BSD 2-Clause License
 //     https://github.com/justjohn/twig.js
 
-// ## twig.function.js
+// ## twig.exports.js
 //
 // This file provides extension points and other hooks into the twig functionality.
 
@@ -4257,6 +4268,7 @@ var Twig = (function (Twig) {
             return Twig.Templates.loadRemote(params.href, {
                 id: id,
                 method: 'ajax',
+                base: params.base,
                 module: params.module,
                 precompiled: params.precompiled,
                 async: params.async,
@@ -4391,7 +4403,7 @@ var Twig = (function (Twig) {
 //     Available under the BSD 2-Clause License
 //     https://github.com/justjohn/twig.js
 
-// ## twig.tests.js
+// ## twig.compiler.js
 //
 // This file handles compiling templates into JS
 var Twig = (function (Twig) {
